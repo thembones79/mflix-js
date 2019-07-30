@@ -1,6 +1,8 @@
 const MongoClient = require("mongodb").MongoClient
 const ObjectId = require("mongodb").ObjectId
 const MongoError = require("mongodb").MongoError
+console.log("a")
+//require('dotenv').config({ path: '../../.env' })
 
 /**
  * Ticket: Migration
@@ -17,28 +19,31 @@ const MongoError = require("mongodb").MongoError
 ;(async () => {
   try {
     // ensure you update your host information below!
+    console.log("b")
     const host =
       "mongodb+srv://m220student:m220password@mflix-cvngc.mongodb.net/test?retryWrites=true&w=majority"
+    console.log("c")
     const client = await MongoClient.connect(
       host,
       { useNewUrlParser: true },
     )
+    console.log("d")
     const mflix = client.db("sample_mflix")
+    console.log("e")
 
     // TODO: Create the proper predicate and projection
     // add a predicate that checks that the `lastupdated` field exists, and then
     // check that its type is a string
     // a projection is not required, but may help reduce the amount of data sent
     // over the wire!
-    const predicate = {
-      lastupdated: { $exists: true },
-      lastupdated: { $type: "string" },
-    }
-    const projection = { title: 1 }
+    const predicate = { lastupdated: { $exists: true, $type: "string" } }
+    const projection = { lastupdated: 1 }
+    console.log("f")
     const cursor = await mflix
       .collection("movies")
       .find(predicate, projection)
       .toArray()
+    console.log("g")
     const moviesToMigrate = cursor.map(({ _id, lastupdated }) => ({
       updateOne: {
         filter: { _id: ObjectId(_id) },
@@ -47,6 +52,7 @@ const MongoError = require("mongodb").MongoError
         },
       },
     }))
+    console.log("h")
     console.log(
       "\x1b[32m",
       `Found ${moviesToMigrate.length} documents to update`,
@@ -54,9 +60,10 @@ const MongoError = require("mongodb").MongoError
     // TODO: Complete the BulkWrite statement below
     const { modifiedCount } = await mflix
       .collection("movies")
-      .bulkWrite(moviesToMigrate, { ordered: false })
-
-    console.log("\x1b[32m", `${modifiedCount} documents updated`)
+      .bulkWrite(moviesToMigrate, {
+        ordered: false,
+      })
+      .console.log("\x1b[32m", `${modifiedCount} documents updated`)
     client.close()
     process.exit(0)
   } catch (e) {
@@ -71,3 +78,4 @@ const MongoError = require("mongodb").MongoError
     process.exit(1)
   }
 })()
+console.log("z")
